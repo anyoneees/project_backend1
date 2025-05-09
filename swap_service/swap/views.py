@@ -5,6 +5,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import ClothingItem, ExchangeRequest
 from .serializers import ClothingItemSerializer, ExchangeRequestSerializer
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+
+def get_csrf_token(request):
+    return JsonResponse({'csrfToken': get_token(request)})
 
 
 class ClothingItemViewSet(viewsets.ModelViewSet):
