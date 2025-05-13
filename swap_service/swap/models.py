@@ -31,6 +31,7 @@ class ClothingItem(models.Model):
     size = models.CharField(max_length=50)
     image = models.ImageField(upload_to='clothing_images/')
     is_available = models.BooleanField(default=True)
+    category = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.title

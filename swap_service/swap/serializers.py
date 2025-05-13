@@ -14,7 +14,7 @@ class ClothingItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClothingItem
-        fields = ['id', 'title', 'description', 'size', 'image', 'is_available', 'owner']
+        fields = ['id', 'title', 'description', 'size', 'image', 'is_available', 'owner', 'category']
 
 
 class ExchangeRequestSerializer(serializers.ModelSerializer):
