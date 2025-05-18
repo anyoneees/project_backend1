@@ -37,6 +37,15 @@ class ClothingItem(models.Model):
         return self.title
 
 
+class Offer(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='offers_created')
+    item = models.ForeignKey('ClothingItem', on_delete=models.CASCADE, related_name='offers_received')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Offer #{self.id} by {self.creator.username} for {self.item.title}"
+
+
 class ExchangeRequest(models.Model):
     requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requested_exchanges')
     requested_item = models.ForeignKey(ClothingItem, on_delete=models.CASCADE, related_name='exchange_requests')

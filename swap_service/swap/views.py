@@ -2,14 +2,52 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
-from rest_framework.response import Response
-from .models import ClothingItem, ExchangeRequest
-from .serializers import ClothingItemSerializer, ExchangeRequestSerializer
+from .models import ClothingItem, ExchangeRequest, Offer
+from .serializers import ClothingItemSerializer, ExchangeRequestSerializer, OfferSerializer
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from rest_framework import generics
+
 
 def get_csrf_token(request):
     return JsonResponse({'csrfToken': get_token(request)})
+
+User = get_user_model()
+
+class ItemOffersList(generics.ListAPIView):
+    serializer_class = OfferSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        item_id = self.kwargs['item_id']
+        return Offer.objects.filter(item_id=item_id)
+
+class OfferCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                         context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'username': user.username,
+        })
 
 
 class ClothingItemViewSet(viewsets.ModelViewSet):
